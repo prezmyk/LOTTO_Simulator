@@ -40,7 +40,7 @@ BEGIN
 END;
 ]',
     enabled => TRUE,
-    comments => 'rolling numbers for big lotto'
+    comments => 'draw numbers for big lotto'
 );
 END;
 /
@@ -54,7 +54,7 @@ DBMS_SCHEDULER.create_program (
 q'[
 DECLARE
     v_count     NUMBER; -- value to checking number
-    v_l         NUMBER;  -- rolling limit counter
+    v_l         NUMBER;  -- draw limit counter
     v_no        NUMBER; --random value with range
     v_game_id   NUMBER;
 BEGIN
@@ -63,7 +63,7 @@ BEGIN
     v_no    := TRUNC(dbms_random.value(1,42));
     SELECT game_id INTO v_game_id FROM games WHERE
     TRIM(UPPER(game_name)) = 'EXPRESS LOTTO';
-    LOOP -- rolling loop
+    LOOP -- draw loop
         BEGIN            
             IF v_count = 0 THEN -- if false then insert and l_v increment
             INSERT INTO results VALUES (v_game_id, sysdate, v_no ); 
@@ -88,7 +88,7 @@ BEGIN
 END;
 ]',
     enabled => TRUE,
-    comments => 'rolling numbers for express lotto'
+    comments => 'draw numbers for express lotto'
 );
 END;
 /
@@ -158,7 +158,7 @@ BEGIN
 END;
 ]',
     enabled => TRUE,
-    comments => 'Creating rollovers_acrhive record. Checking rolled numbers and update rollovers amount. 
+    comments => 'Creating rollovers_acrhive record. Checking drew numbers and update rollovers amount. 
     Reset cumulative amount to default value if is there any lucky winner.'
 );
 END;
@@ -239,11 +239,28 @@ BEGIN
 END;    
 ]',
     enabled => TRUE,  
-	comments => 'script running at random procedures for rolling example coupons'
+	comments => 'script running at random procedures for draw example coupons'
 
 );
 END;
 /
+
+-- ** RESET BUDGET ** --
+BEGIN
+DBMS_SCHEDULER.create_program (
+    program_name   => 'reset_budget',
+    program_type   => 'PLSQL_BLOCK',
+    program_action =>  q'[
+BEGIN
+    UPDATE budget SET budget_amount = 50;    
+END;    
+]',
+    enabled => TRUE,  
+	comments => 'script for reset budget'
+);
+END;
+/
+
 
 
 

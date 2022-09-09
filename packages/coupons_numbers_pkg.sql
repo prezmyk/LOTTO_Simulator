@@ -1,7 +1,20 @@
 create or replace PACKAGE coupons_numbers_pkg IS    
    TYPE numbers_array IS TABLE OF NUMBER;
 
-   PROCEDURE coupon_numbers (p_number numbers_array,  p_game_id NUMBER ); 
+   PROCEDURE coupon_numbers (p_number numbers_array,  p_game_id NUMBER );  
+
+/*
+-- Example PL/SQL BLOCK
+SET SERVEROUTPUT ON
+DECLARE
+t_number coupons_numbers_pkg.numbers_array;
+BEGIN
+t_number := coupons_numbers_pkg.numbers_array(1,2,3,4,5,6); -- Numbers for coupon
+coupons_numbers_pkg.coupon_numbers (t_number, p_game_id => 10);
+END;
+/
+*/ 
+   
 
 END coupons_numbers_pkg;
 /
@@ -65,14 +78,5 @@ PROCEDURE coupon_numbers (p_number numbers_array,   p_game_id NUMBER )   IS
             RETURN;
         END IF;       
     END;
-/*
-DECLARE
-t_number coupons_numbers_pkg.numbers_array 
-:= coupons_numbers_pkg.numbers_array(1,2,3,4,15,22);
-
-BEGIN
-coupons_numbers_pkg.coupon_numbers (t_number, 30);
-END;
-*/
 
 END coupons_numbers_pkg;
