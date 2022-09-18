@@ -1,46 +1,62 @@
+-- SELECT * FROM user_tab_privs;
+SET SERVEROUTPUT ON;
 -- ROLE
-CREATE ROLE GUEST_UESER; 
+CREATE ROLE GUEST_USER; 
 -- SESSION
 GRANT CREATE SESSION TO GUEST_USER;
--- SELECT on tables
-GRANT SELECT ON lotto.games 				TO GUEST_USER;
-GRANT SELECT ON lotto.results 				TO GUEST_USER;
-GRANT SELECT ON lotto.lucky_winners 		TO GUEST_USER;
-GRANT SELECT ON lotto.coupons 				TO GUEST_USER;
-GRANT SELECT ON lotto.coupons_numbers 		TO GUEST_USER;
-GRANT SELECT ON lotto.rollovers 			TO GUEST_USER;
-GRANT SELECT ON lotto.rollovers_archive 	TO GUEST_USER;
-GRANT SELECT ON lotto.budget				TO GUEST_USER;
--- SELECT on Views
-GRANT SELECT ON lotto.last_winners_sum 		TO GUEST_USER;
-GRANT SELECT ON lotto.MATCHED_WINNERS 		TO GUEST_USER;
-GRANT SELECT ON lotto.winners_with_amount 	TO GUEST_USER;
-GRANT SELECT ON lotto.coupons_prices 		TO GUEST_USER;
 
+-- GRANT SELECT on tables and views
+-- CREATE PUBLIC SYNONYM on tables and views
+DECLARE      
+    v_table_name_cur SYS_REFCURSOR;
+ 
+    v_table_name    VARCHAR2(30 CHAR); 
+    v_owner         VARCHAR2(30 CHAR);
 
+BEGIN  
+    v_owner  := 'LOTTO'; 
+    
+    DBMS_OUTPUT.PUT_LINE('-- TABLES---');
+    OPEN v_table_name_cur FOR
+    SELECT table_name FROM all_tables
+    WHERE UPPER(owner) = UPPER(v_owner);    
+   
+    LOOP      
+        FETCH v_table_name_cur INTO v_table_name;
+        EXIT WHEN v_table_name_cur%NOTFOUND;
+        EXECUTE IMMEDIATE 'GRANT SELECT ON ' || v_owner||'.'||v_table_name || ' TO GUEST_USER'; 
+        EXECUTE IMMEDIATE 'CREATE PUBLIC SYNONYM ' ||v_table_name || ' FOR ' || v_owner||'.'||v_table_name; 
+        DBMS_OUTPUT.PUT_LINE(v_owner||'.'||v_table_name );
+    
+    END LOOP;
+    
+    DBMS_OUTPUT.PUT_LINE('-- VIEWS---');    
+    OPEN v_table_name_cur FOR
+    SELECT view_name FROM all_views
+    WHERE UPPER(owner) = UPPER(v_owner);   
+    
+    LOOP      
+        FETCH v_table_name_cur INTO v_table_name;
+        EXIT WHEN v_table_name_cur%NOTFOUND;      
+        EXECUTE IMMEDIATE 'GRANT SELECT ON ' || v_owner||'.'||v_table_name || ' TO GUEST_USER'; 
+        EXECUTE IMMEDIATE 'CREATE PUBLIC SYNONYM ' ||v_table_name || ' FOR ' || v_owner||'.'||v_table_name; 
+        DBMS_OUTPUT.PUT_LINE(v_owner||'.'||v_table_name );    
+    END LOOP;  
+
+    CLOSE v_table_name_cur;
+        
+END;
+/
 
 -- Procedure
 GRANT EXECUTE ON LOTTO.coupons_numbers_pkg 	TO GUEST_USER;
-
--- SYNONYM
-GRANT GUEST_USER	TO LOTTO_USER;
+CREATE PUBLIC SYNONYM coupons_numbers_pkg 	FOR LOTTO.coupons_numbers_pkg;
 
 
--- SYNONYMS on tables
-CREATE PUBLIC SYNONYM games 				FOR lotto.games;
-CREATE PUBLIC SYNONYM results 				FOR lotto.results ;
-CREATE PUBLIC SYNONYM lucky_winners 		FOR lotto.lucky_winners ;
-CREATE PUBLIC SYNONYM coupons 				FOR lotto.coupons ;
-CREATE PUBLIC SYNONYM coupons_numbers 		FOR lotto.coupons_numbers ;
-CREATE PUBLIC SYNONYM rollovers 			FOR lotto.rollovers ;
-CREATE PUBLIC SYNONYM rollovers_archive 	FOR lotto.rollovers_archive ;
-CREATE PUBLIC SYNONYM budget			 	FOR lotto.budget;
--- SYNONYMS on Views
-CREATE PUBLIC SYNONYM last_winners_sum 	FOR lotto.last_winners_sum ;
-CREATE PUBLIC SYNONYM MATCHED_WINNERS 		FOR lotto.MATCHED_WINNERS ;
-CREATE PUBLIC SYNONYM winners_with_amount 	FOR lotto.winners_with_amount ;
-CREATE PUBLIC SYNONYM coupons_prices 		FOR lotto.coupons_prices  ;
--- PACKAGE
-CREATE PUBLIC SYNONYM coupons_numbers_pkg 	FOR LOTTO.coupons_numbers_pkg ;
+
+
+
+
+
 
 
