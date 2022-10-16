@@ -1,4 +1,4 @@
--- SELECT * FROM user_tab_privs;
+
 SET SERVEROUTPUT ON;
 -- ROLE
 CREATE ROLE GUEST_USER; 

@@ -55,3 +55,17 @@ GROUP BY TO_CHAR(r.draw_date ,'YY-MM-DD HH24:MI'), c.game_id
 ORDER BY draw_date DESC, c.game_id;
 
 
+CREATE OR REPLACE VIEW WINNING_NUMBERS AS 
+SELECT
+GAME_ID, DRAW_DATE, NO_1, NO_2, NO_3, NO_4, NO_5,  NO_6
+FROM 
+  (SELECT
+  game_id,draw_no, to_char(draw_date, 'YYYY-MM-DD') draw_date,
+  ROW_NUMBER()
+  OVER(PARTITION BY to_char(draw_date, 'YYYY-MM-DD'), game_id
+  ORDER BY draw_no ASC )  rn
+  FROM results )
+PIVOT (
+  MAX ( draw_no )FOR rn IN ( 1 NO_1, 2 NO_2, 3 NO_3, 4 NO_4, 5 NO_5, 6 NO_6 )
+  )
+ ORDER BY draw_date, game_id;
